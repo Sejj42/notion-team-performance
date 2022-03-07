@@ -11,16 +11,6 @@ const getPagedata = async () => {
 };
 
 const getAllFeatures = async (pageData) => {
-  // const scoreValidator = (gap) => {
-  //   if (gap != null && gap != undefined && gap.formula.number != 0) {
-  //     return (gap.formula.number * -1).toString();
-  //   } else if (gap != null && gap != undefined && gap.formula.number == 0) {
-  //     return "0";
-  //   } else {
-  //     return "N/A";
-  //   }
-  // };
-
   const thePage = pageData[Object.keys(pageData)[1]];
 
   const getGapSumOfFeatureTasks = (featureTasksArray) => {
@@ -52,6 +42,16 @@ const getAllFeatures = async (pageData) => {
   let allFeatures = [];
 
   await pageData.results.forEach((result) => {
+    // console.log("below is result.properties.Sprint");
+    // console.log(result.properties.Sprint);
+    // console.log(
+    //   util.inspect(
+    //     result.properties.Sprint.multi_select[0],
+    //     false,
+    //     null,
+    //     true /* enable colors */
+    //   )
+    // );
     try {
       if (
         result.properties.Type &&
@@ -71,20 +71,12 @@ const getAllFeatures = async (pageData) => {
 
           featureName: result.properties.task.title[0].text.content,
 
-          // score:
-          //   result.properties.gap &&
-          //   result.properties.gap.formula &&
-          //   result.properties.gap.formula.number != undefined &&
-          //   result.properties.gap.formula.number != null
-          //     ? scoreValidator(result.properties.gap)
-          //     : "hi!",
-
           sprint:
             result.properties.Sprint &&
             result.properties.Sprint.multi_select &&
-            result.properties.Sprint.multi_select.length != 0 &&
-            result.properties.Sprint.multi_select.name != undefined &&
-            result.properties.Sprint.multi_select.name != null
+            result.properties.Sprint.multi_select.length !== 0 &&
+            result.properties.Sprint.multi_select[0].name !== undefined &&
+            result.properties.Sprint.multi_select[0].name !== null
               ? result.properties.Sprint.multi_select[0].name
               : "N/A",
 
@@ -124,16 +116,6 @@ const allFeaturesEntriesGenerator = async (allFeatures) => {
           },
         ],
       },
-      // featureID: {
-      //   type: "rich_text",
-      //   rich_text: [
-      //     {
-      //       text: {
-      //         content: feature.featureId,
-      //       },
-      //     },
-      //   ],
-      // },
       featureName: {
         type: "rich_text",
         rich_text: [
@@ -144,16 +126,6 @@ const allFeaturesEntriesGenerator = async (allFeatures) => {
           },
         ],
       },
-      // Score: {
-      //   type: "rich_text",
-      //   rich_text: [
-      //     {
-      //       text: {
-      //         content: feature.score,
-      //       },
-      //     },
-      //   ],
-      // },
       Score: {
         type: "rich_text",
         rich_text: [
