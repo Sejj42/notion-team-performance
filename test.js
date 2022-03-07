@@ -11,13 +11,41 @@ const getPagedata = async () => {
 };
 
 const getAllFeatures = async (pageData) => {
-  const scoreValidator = (gap) => {
-    if (gap != null && gap != undefined && gap.formula.number != 0) {
-      return (gap.formula.number * -1).toString();
-    } else if (gap != null && gap != undefined && gap.formula.number == 0) {
+  // const scoreValidator = (gap) => {
+  //   if (gap != null && gap != undefined && gap.formula.number != 0) {
+  //     return (gap.formula.number * -1).toString();
+  //   } else if (gap != null && gap != undefined && gap.formula.number == 0) {
+  //     return "0";
+  //   } else {
+  //     return "N/A";
+  //   }
+  // };
+
+  const thePage = pageData[Object.keys(pageData)[1]];
+
+  const getGapSumOfFeatureTasks = (featureTasksArray) => {
+    let featureGap = 0;
+    featureTasksArray.forEach((task) => {
+      thePage.forEach((pageTask) => {
+        if (task.id === pageTask.id) {
+          if (
+            pageTask.properties.gap &&
+            pageTask.properties.gap.formula &&
+            pageTask.properties.gap.formula.number != undefined &&
+            pageTask.properties.gap.formula.number != null
+          ) {
+            featureGap += pageTask.properties.gap.formula.number;
+          } else {
+            featureGap += 0;
+          }
+          return pageTask.id;
+        }
+      });
+    });
+    if (featureGap === 0) {
       return "0";
     } else {
-      return "N/A";
+      return String(featureGap * -1);
     }
   };
 
@@ -43,13 +71,13 @@ const getAllFeatures = async (pageData) => {
 
           featureName: result.properties.task.title[0].text.content,
 
-          score:
-            result.properties.gap &&
-            result.properties.gap.formula &&
-            result.properties.gap.formula.number != undefined &&
-            result.properties.gap.formula.number != null
-              ? scoreValidator(result.properties.gap)
-              : "hi!",
+          // score:
+          //   result.properties.gap &&
+          //   result.properties.gap.formula &&
+          //   result.properties.gap.formula.number != undefined &&
+          //   result.properties.gap.formula.number != null
+          //     ? scoreValidator(result.properties.gap)
+          //     : "hi!",
 
           sprint:
             result.properties.Sprint &&
@@ -65,6 +93,13 @@ const getAllFeatures = async (pageData) => {
             result.properties.Related.relation &&
             result.properties.Related.relation.length !== 0
               ? result.properties.Related.relation
+              : "N/A",
+
+          score:
+            result.properties.Related &&
+            result.properties.Related.relation &&
+            result.properties.Related.relation.length !== 0
+              ? getGapSumOfFeatureTasks(result.properties.Related.relation)
               : "N/A",
         });
       } else {
@@ -89,16 +124,16 @@ const allFeaturesEntriesGenerator = async (allFeatures) => {
           },
         ],
       },
-      featureID: {
-        type: "rich_text",
-        rich_text: [
-          {
-            text: {
-              content: feature.featureId,
-            },
-          },
-        ],
-      },
+      // featureID: {
+      //   type: "rich_text",
+      //   rich_text: [
+      //     {
+      //       text: {
+      //         content: feature.featureId,
+      //       },
+      //     },
+      //   ],
+      // },
       featureName: {
         type: "rich_text",
         rich_text: [
@@ -109,6 +144,16 @@ const allFeaturesEntriesGenerator = async (allFeatures) => {
           },
         ],
       },
+      // Score: {
+      //   type: "rich_text",
+      //   rich_text: [
+      //     {
+      //       text: {
+      //         content: feature.score,
+      //       },
+      //     },
+      //   ],
+      // },
       Score: {
         type: "rich_text",
         rich_text: [
@@ -167,9 +212,9 @@ const indexFunction = async () => {
   const pageData = await getPagedata();
   const allFeatures = await getAllFeatures(pageData);
   const allFeatureEntries = await allFeaturesEntriesGenerator(allFeatures);
-  console.log(
-    util.inspect(allFeatureEntries, false, null, true /* enable colors */)
-  );
+  // console.log(
+  //   util.inspect(allFeatureEntries, false, null, true /* enable colors */)
+  // );
   await entryAdder(allFeatureEntries);
 
   return "index function ran successfully.";
